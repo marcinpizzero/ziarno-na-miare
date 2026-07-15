@@ -1,8 +1,7 @@
 // app/page.tsx
-import ExclusionFilters from '@/components/ExclusionFilters';
-import DoughCalculator from '@/components/DoughCalculator';
+import CategoryTabs from '@/components/CategoryTabs';
 import FlourAtlas from '@/components/FlourAtlas';
-import RecipeManager from '@/components/RecipeManager';
+import Link from 'next/link';
 
 export default function Home() {
   return (
@@ -17,31 +16,36 @@ export default function Home() {
             </div>
           </div>
           <p className="text-lg md:text-xl text-amber-50 max-w-2xl">
-            Inteligentny kalkulator piekarniczy, który szanuje Twoje potrzeby. 
-            Uwzględnia celiakię, FODMAP, insulinooporność i alergie – 
+            Sprawdzone przepisy, które szanują Twoje potrzeby. 
+            Uwzględniają celiakię, FODMAP, insulinooporność i alergie – 
             bo każdy zasługuje na dobry chleb.
           </p>
         </div>
       </header>
 
       <div className="max-w-6xl mx-auto px-4 py-6 space-y-6">
-        <ExclusionFilters />
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <DoughCalculator />
-            <RecipeManager />
-          </div>
-          <div className="lg:col-span-1">
-            <FlourAtlas />
-          </div>
+        {/* Kafelki kategorii */}
+        <CategoryTabs />
+
+        {/* Link do kalkulatora */}
+        <div className="text-center">
+          <Link
+            href="/kalkulator"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors font-medium shadow-md"
+          >
+            <span>🧮</span> Otwórz Kalkulator Piekarniczy
+          </Link>
         </div>
+
+        {/* Atlas Ziaren */}
+        <FlourAtlas />
       </div>
 
       <footer className="bg-stone-800 text-stone-400 py-8 mt-12">
         <div className="max-w-6xl mx-auto px-4 text-center text-sm">
           <p className="font-semibold text-amber-300 text-base mb-1">🌾 Ziarno na Miarę</p>
-          <p>Wszystkie obliczenia oparte na Baker's Percentage. Algorytmy dynamicznie dostosowują hydrację i składniki.</p>
-          <p className="mt-1">© {new Date().getFullYear()} Ziarno na Miarę. Dane żywieniowe oparte na publikacjach naukowych.</p>
+          <p>Wszystkie przepisy przetestowane i sprawdzone. Bez polepszaczy, bez chemii.</p>
+          <p className="mt-1">© {new Date().getFullYear()} Ziarno na Miarę</p>
         </div>
       </footer>
     </main>
