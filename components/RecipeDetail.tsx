@@ -42,12 +42,31 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
       </h1>
       <p className="text-stone-600 mb-6 leading-relaxed">{recipe.shortDescription}</p>
 
+      {/* Dlaczego ta kategoria */}
+      <div className="bg-green-50 rounded-xl p-4 border border-green-200 mb-6">
+        <h2 className="font-semibold text-green-800 mb-2">
+          Dlaczego ten przepis znajduje się w tej kategorii?
+        </h2>
+        <ul className="space-y-1">
+          {recipe.whyThisCategory.map((reason, i) => (
+            <li key={i} className="flex items-start gap-2 text-sm text-green-700">
+              <span className="text-green-500 mt-0.5">✓</span> {reason}
+            </li>
+          ))}
+        </ul>
+      </div>
+
       {/* Metryczka */}
-      <div className="bg-amber-50 rounded-xl p-4 grid grid-cols-2 sm:grid-cols-4 gap-3 mb-8">
+      <div className="bg-amber-50 rounded-xl p-4 grid grid-cols-2 sm:grid-cols-3 gap-3 mb-8">
         <div className="text-center">
           <span className="block text-2xl">⏱️</span>
           <span className="text-xs text-stone-500">Czas całkowity</span>
           <span className="block text-sm font-semibold text-stone-700">{recipe.totalTime}</span>
+        </div>
+        <div className="text-center">
+          <span className="block text-2xl">🕐</span>
+          <span className="text-xs text-stone-500">Fermentacja</span>
+          <span className="block text-sm font-semibold text-stone-700">{recipe.fermentationTime}</span>
         </div>
         <div className="text-center">
           <span className="block text-2xl">📊</span>
@@ -61,6 +80,11 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
         </div>
         <div className="text-center">
           <span className="block text-2xl">🔥</span>
+          <span className="text-xs text-stone-500">Pieczenie</span>
+          <span className="block text-sm font-semibold text-stone-700">{recipe.bakeTime}</span>
+        </div>
+        <div className="text-center">
+          <span className="block text-2xl">⚖️</span>
           <span className="text-xs text-stone-500">Kalorie</span>
           <span className="block text-sm font-semibold text-stone-700">{recipe.calories}</span>
         </div>
@@ -170,7 +194,7 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
         </ul>
       </div>
 
-      {/* Atlas Ziaren - przypięty na dole */}
+      {/* Atlas Ziaren */}
       <div className="bg-stone-50 rounded-xl p-4 border border-stone-200">
         <h2 className="text-lg font-bold text-stone-800 mb-3 flex items-center gap-2">
           <span>📚</span> Mąki użyte w przepisie

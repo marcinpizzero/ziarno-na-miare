@@ -57,7 +57,7 @@ export default function RecipeList({ recipes, categoryName, categoryIcon }: Reci
                 <span>📊</span> {recipe.difficulty}
               </span>
               <span className="flex items-center gap-1">
-                <span>🍽️</span> {recipe.servings} porcji
+                <span>🍽️</span> {recipe.servings} {recipe.servings === 1 ? 'porcja' : recipe.servings < 5 ? 'porcje' : 'porcji'}
               </span>
             </div>
           </Link>

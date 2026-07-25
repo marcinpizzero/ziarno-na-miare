@@ -27,17 +27,7 @@ export default function Home() {
         {/* Kafelki kategorii */}
         <CategoryTabs />
 
-        {/* Link do kalkulatora */}
-        <div className="text-center">
-          <Link
-            href="/kalkulator"
-            className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-white rounded-full hover:bg-amber-600 transition-colors font-medium shadow-md"
-          >
-            <span>🧮</span> Otwórz Kalkulator Piekarniczy
-          </Link>
-        </div>
-
-        {/* Atlas Ziaren */}
+                {/* Atlas Ziaren */}
         <FlourAtlas />
       </div>
 
