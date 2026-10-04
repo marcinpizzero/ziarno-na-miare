@@ -1,328 +1,87 @@
-// lib/recipeData.ts
-import { RecipeTemplate } from '@/types';
+export type DietaryTag = "dairy-free" | "low-fodmap" | "low-gi" | "gluten-free";
 
-export const recipeTemplates: RecipeTemplate[] = [
+export interface Ingredient {
+  name: string;
+  amountPerPortion: number; // Ilość bazowa przypadająca na 1 porcję
+  unit: string;             // np. "g", "ml", "łyżeczka"
+}
+
+export interface Recipe {
+  id: string;
+  slug: string;
+  title: string;
+  category: "pizza" | "focaccia" | "pieczywo";
+  defaultPortions: number;
+  portionUnitName: string;   // np. "pizze", "porcje", "bochenki"
+  timeMinutes: string;       // np. "24h (długa fermentacja)"
+  shortDescription: string;
+  recommendedFlourId?: string; // Powiązanie z mąką z Atlasu (np. "niro-orkisz-00")
+  tags: DietaryTag[];
+  ingredients: Ingredient[];
+  steps: string[];
+}
+
+export const DIETARY_TAG_LABELS: Record<DietaryTag, string> = {
+  "dairy-free": "Bez Nabiału",
+  "low-fodmap": "Low FODMAP",
+  "low-gi": "Niski IG",
+  "gluten-free": "Bezgluten",
+};
+
+export const RECIPES: Recipe[] = [
   {
-    id: 'pizza-napoletana',
-    name: 'Pizza Napoletana',
-    description:
-      'Klasyczna pizza neapolitańska – miękka, elastyczna, z wysokim brzegiem (cornicione). Długa fermentacja 24-48h w niskiej temperaturze.',
-    baseHydration: 0.65,
-    saltPercentage: 2.5,
-    prefermentPercentage: 20,
-    oilPercentage: 0,
-    defaultBallWeight: 250,
-    ballStyle: 'napoli',
-    defaultFlourBlend: [{ flourId: 'orkisz-00', percentage: 100 }],
-    fermentationSchedule: [
-      {
-        step: 1,
-        description: 'Autoliza',
-        duration: '45 min',
-        temperature: 'temperatura pokojowa',
-        notes: 'Wymieszać mąkę z 90% wody. Odstawić pod przykryciem.',
-      },
-      {
-        step: 2,
-        description: 'Dodanie zakwasu i soli',
-        duration: '5 min',
-        temperature: 'temperatura pokojowa',
-        notes: 'Dodać zakwas, sól i resztę wody. Wyrabiać 5 min.',
-      },
-      {
-        step: 3,
-        description: 'Fermentacja wstępna (bulk)',
-        duration: '2h',
-        temperature: '24-26°C',
-        notes: '2-3 krotne złożenie ciasta co 30 min.',
-      },
-      {
-        step: 4,
-        description: 'Fermentacja zimna',
-        duration: '24-48h',
-        temperature: '4°C',
-        notes: 'Ciasto w lodówce, przykryte folią.',
-      },
-      {
-        step: 5,
-        description: 'Formowanie kulek',
-        duration: '15 min',
-        temperature: 'temperatura pokojowa',
-        notes: 'Podzielić na kulki po 250g. Odpoczynek 4-6h w temp. pokojowej.',
-      },
+    id: "pizza-orkisz-00",
+    slug: "domowa-pizza-orkiszowa",
+    title: "Domowa Pizza Orkiszowa (Długa Fermentacja)",
+    category: "pizza",
+    defaultPortions: 2,
+    portionUnitName: "pizze (kulki ok. 260g)",
+    timeMinutes: "24h fermentacji w lodówce",
+    shortDescription: "Chrupiący brzeg, miękkie wnętrze i maksymalna lekkostrawność dzięki Bio Mące Orkiszowej Typ 00.",
+    recommendedFlourId: "niro-orkisz-00",
+    tags: ["dairy-free", "low-fodmap"],
+    ingredients: [
+      { name: "Bio Mąka orkiszowa Typ 00 (NIRO BIO)", amountPerPortion: 160, unit: "g" },
+      { name: "Woda (zimna)", amountPerPortion: 105, unit: "ml" },
+      { name: "Sól morska", amountPerPortion: 4.5, unit: "g" },
+      { name: "Świeże drożdże", amountPerPortion: 0.5, unit: "g" },
+      { name: "Oliwa z oliwek extra virgin", amountPerPortion: 4, unit: "ml" },
     ],
-    bakingParams: {
-      method: 'Kamień do pizzy / stal',
-      temperature: '230°C (max piekarnika)',
-      time: '8-12 min',
-      notes: 'Nagrzewać kamień min. 45 min. Piec na górnej grzałce.',
-    },
-    toppings: [
-      'San Marzano DOP',
-      'mozzarella di bufala / fior di latte',
-      'świeża bazylia',
-      'oliwa EV',
-    ],
-    instructions: [
-      'Nigdy nie używaj wałka – rozciągaj ciasto dłońmi',
-      'Sos nakładaj od środka spiralnym ruchem',
-      'Mozzarella w kawałkach, nie tartą',
-      'Oliwa EV dopiero po upieczeniu',
+    steps: [
+      "Rozpuść drożdże w chłodnej wodzie.",
+      "Dodaj mąkę orkiszową 00 i zacznij mieszać łyżką lub dłonią do połączenia składników.",
+      "Dodaj sól oraz oliwę. Wyrabiaj ciasto przez ok. 8-10 minut, aż stanie się gładkie i elastyczne.",
+      "Przełóż ciasto do pojemnika, zamknij szczelnie i wstaw do lodówki (4-6°C) na 20-24 godziny.",
+      "Wyjmij ciasto na 2 godziny przed pieczeniem, podziel na równe kulki i uformuj placki.",
+      "Piecz w maksymalnej temperaturze piekarnika (250-280°C z funkcją termoobiegu lub grill) na rozgrzanej blasze lub kamieniu przez ok. 5-7 minut.",
     ],
   },
   {
-    id: 'detroit-style',
-    name: 'Pizza Detroit-Style',
-    description:
-      'Puszysta pizza w formie, z karmelizowanym serem na brzegach. Pieczona w stalowej blasze.',
-    baseHydration: 0.78,
-    saltPercentage: 2.0,
-    prefermentPercentage: 15,
-    oilPercentage: 3,
-    defaultBallWeight: 400,
-    ballStyle: 'detroit',
-    defaultFlourBlend: [{ flourId: 'orkisz-650', percentage: 100 }],
-    fermentationSchedule: [
-      {
-        step: 1,
-        description: 'Mieszanie składników',
-        duration: '10 min',
-        temperature: 'temperatura pokojowa',
-        notes: 'Wszystkie składniki razem. Wyrabiać do gładkości.',
-      },
-      {
-        step: 2,
-        description: 'Fermentacja wstępna',
-        duration: '2h',
-        temperature: '25°C',
-        notes: 'Podwojenie objętości.',
-      },
-      {
-        step: 3,
-        description: 'Fermentacja zimna',
-        duration: '12-18h',
-        temperature: '4°C',
-        notes: 'W lodówce w formie, przykryte.',
-      },
-      {
-        step: 4,
-        description: 'Wyrastanie końcowe',
-        duration: '2h',
-        temperature: 'temperatura pokojowa',
-        notes: 'Ciasto powinno wypełnić formę.',
-      },
+    id: "focaccia-oliwa-rozmaryn",
+    slug: "rzemieslnicza-focaccia-rozmaryn",
+    title: "Rzemieślnicza Focaccia z Oliwą i Solą Morską",
+    category: "focaccia",
+    defaultPortions: 4,
+    portionUnitName: "duże porcje",
+    timeMinutes: "18h fermentacji",
+    shortDescription: "Puszysta focaccia z dużymi bąblami, aromatem świeżego rozmarynu i chrupiącą złocistą skórką.",
+    recommendedFlourId: "niro-orkisz-00",
+    tags: ["dairy-free", "low-gi"],
+    ingredients: [
+      { name: "Bio Mąka orkiszowa Typ 00 lub chlebowa", amountPerPortion: 100, unit: "g" },
+      { name: "Woda", amountPerPortion: 75, unit: "ml" },
+      { name: "Oliwa z oliwek (do ciasta i formy)", amountPerPortion: 8, unit: "ml" },
+      { name: "Sól", amountPerPortion: 2.5, unit: "g" },
+      { name: "Drożdże świeże", amountPerPortion: 0.8, unit: "g" },
+      { name: "Świeży rozmaryn", amountPerPortion: 1, unit: "gałązka" },
     ],
-    bakingParams: {
-      method: 'Forma Detroit / blacha stalowa',
-      temperature: '230°C',
-      time: '15-18 min',
-      notes: 'Ser układany aż do brzegów formy dla karmelizacji.',
-    },
-    toppings: [
-      'ser Wisconsin Brick (lub mozzarella + cheddar)',
-      'sos pomidorowy w paskach po upieczeniu',
-      'oliwa EV',
-    ],
-    instructions: [
-      'Formę wysmarować oliwą',
-      'Ser układać do samych brzegów',
-      'Sos nakładać po upieczeniu w grube paski',
-    ],
-  },
-  {
-    id: 'pinsa-romana',
-    name: 'Pinsa Romana',
-    description:
-      'Starożytna receptura rzymska – blend mąki ryżowej, kukurydzianej i gryczanej. Wyjątkowo lekkostrawna, low-FODMAP safe.',
-    baseHydration: 0.72,
-    saltPercentage: 2.2,
-    prefermentPercentage: 25,
-    oilPercentage: 4,
-    defaultBallWeight: 140,
-    ballStyle: 'pinsa',
-    defaultFlourBlend: [
-      { flourId: 'ryzowa', percentage: 70 },
-      { flourId: 'kukurydziana', percentage: 20 },
-      { flourId: 'gryczana', percentage: 10 },
-    ],
-    fermentationSchedule: [
-      {
-        step: 1,
-        description: 'Autoliza blendu GF',
-        duration: '1h',
-        temperature: 'temperatura pokojowa',
-        notes: 'Mąki GF potrzebują dłuższej hydratacji wstępnej.',
-      },
-      {
-        step: 2,
-        description: 'Dodanie zakwasu i soli',
-        duration: '8 min',
-        temperature: 'temperatura pokojowa',
-        notes: 'Wyrabiać delikatnie – ciasto GF jest bardzo kruche.',
-      },
-      {
-        step: 3,
-        description: 'Fermentacja zimna',
-        duration: '48-72h',
-        temperature: '4°C',
-        notes: 'Długa fermentacja zwiększa strawność i rozwija smak.',
-      },
-      {
-        step: 4,
-        description: 'Formowanie',
-        duration: '20 min',
-        temperature: 'temperatura pokojowa',
-        notes: 'Formować owalne pinsy. Odpoczynek 2h.',
-      },
-    ],
-    bakingParams: {
-      method: 'Kamień / stal do pizzy',
-      temperature: '220°C',
-      time: '6-9 min',
-      notes: 'Pinsa jest cieńsza – krótszy czas pieczenia.',
-    },
-    toppings: [
-      'oliwa EV',
-      'pomidory cherry',
-      'rukola (po upieczeniu)',
-      'prosciutto crudo (po upieczeniu)',
-    ],
-    instructions: [
-      'Ciasto GF jest bardzo delikatne – nie ugniatać zbyt mocno',
-      'Pinsę formować owalnie',
-      'Dodatki nakładać oszczędnie',
-    ],
-  },
-  {
-    id: 'focaccia',
-    name: 'Focaccia Genovese',
-    description:
-      'Puszysta focaccia z wysoką hydracją, pieczona na blasze z oliwą EV i solą morską.',
-    baseHydration: 0.85,
-    saltPercentage: 2.0,
-    prefermentPercentage: 20,
-    oilPercentage: 6,
-    defaultBallWeight: 200,
-    ballStyle: 'focaccia',
-    defaultFlourBlend: [{ flourId: 'orkisz-650', percentage: 100 }],
-    fermentationSchedule: [
-      {
-        step: 1,
-        description: 'Autoliza',
-        duration: '1h',
-        temperature: 'temperatura pokojowa',
-        notes: 'Wysoka hydracja – autoliza kluczowa dla struktury glutenu.',
-      },
-      {
-        step: 2,
-        description: 'Dodanie zakwasu i soli',
-        duration: '5 min',
-        temperature: 'temperatura pokojowa',
-        notes: 'Mieszać łyżką – ciasto będzie bardzo luźne.',
-      },
-      {
-        step: 3,
-        description: 'Fermentacja z rozciąganiem',
-        duration: '3h',
-        temperature: '24°C',
-        notes: 'Co 45 min rozciągać ciasto w misce (coil fold).',
-      },
-      {
-        step: 4,
-        description: 'Fermentacja zimna',
-        duration: '12-16h',
-        temperature: '4°C',
-        notes: 'Przełożyć do formy, przykryć.',
-      },
-      {
-        step: 5,
-        description: 'Wyrastanie końcowe + dziurkowanie',
-        duration: '2h',
-        temperature: 'temperatura pokojowa',
-        notes: 'Przed pieczeniem zrobić wgłębienia palcami, polać oliwą i solą.',
-      },
-    ],
-    bakingParams: {
-      method: 'Blacha / forma',
-      temperature: '220°C',
-      time: '20-25 min',
-      notes: 'Na dno piekarnika wlać wodę dla pary w pierwszych 10 min.',
-    },
-    toppings: ['oliwa EV', 'sól morska gruboziarnista', 'rozmaryn', 'czosnek'],
-    instructions: [
-      'Ciasto musi być bardzo luźne – nie podsypywać mąką',
-      'Dziurkowanie palcami przed pieczeniem',
-      'Obfite polewanie oliwą przed i po pieczeniu',
-    ],
-  },
-  {
-    id: 'rzemieslnicze-buleczki',
-    name: 'Rzemieślnicze Bułeczki / Chleb',
-    description:
-      'Clean Label – tylko mąka, woda, sól, zakwas i opcjonalnie oliwa. Uniwersalne ciasto do bułeczek lub bochenka.',
-    baseHydration: 0.72,
-    saltPercentage: 2.0,
-    prefermentPercentage: 22,
-    oilPercentage: 2,
-    defaultBallWeight: 100,
-    ballStyle: 'custom',
-    defaultFlourBlend: [
-      { flourId: 'zyto-pelny-przemial', percentage: 40 },
-      { flourId: 'orkisz-2000', percentage: 60 },
-    ],
-    fermentationSchedule: [
-      {
-        step: 1,
-        description: 'Autoliza',
-        duration: '45 min',
-        temperature: 'temperatura pokojowa',
-        notes: 'Pełne przemiały potrzebują dłuższej autolizy.',
-      },
-      {
-        step: 2,
-        description: 'Dodanie zakwasu i soli',
-        duration: '8 min',
-        temperature: 'temperatura pokojowa',
-        notes: 'Wyrabiać do średniego rozwoju glutenu.',
-      },
-      {
-        step: 3,
-        description: 'Fermentacja wstępna',
-        duration: '3h',
-        temperature: '25°C',
-        notes: 'Złożenia co 45 min.',
-      },
-      {
-        step: 4,
-        description: 'Fermentacja zimna',
-        duration: '16-24h',
-        temperature: '4°C',
-        notes: 'Rozwój smaku i strawności.',
-      },
-      {
-        step: 5,
-        description: 'Formowanie i wyrastanie',
-        duration: '3h',
-        temperature: 'temperatura pokojowa',
-        notes: 'Formować bułeczki lub bochenek. Wyrastać do podwojenia.',
-      },
-    ],
-    bakingParams: {
-      method: 'Kamień / garnek żeliwny',
-      temperature: '230°C (z parą)',
-      time: '25-35 min (chleb) / 18-22 min (bułeczki)',
-      notes: 'Para kluczowa przez pierwsze 15 min. Garnek żeliwny daje najlepszą skórkę.',
-    },
-    toppings: [
-      'ziarna słonecznika',
-      'siemię lniane',
-      'sezam',
-      'płatki owsiane',
-    ],
-    instructions: [
-      'Garnek żeliwny nagrzewać w piekarniku',
-      'Przed pieczeniem naciąć wierzch',
-      'Ostudzić na kratce min. 1h przed krojeniem',
+    steps: [
+      "Połącz wodę z drożdżami, dodaj mąkę i odstaw na 30 minut (autoliza).",
+      "Dodaj sól i 2/3 oliwy, wykonaj 3 serie składań ciasta co 30 minut w misce.",
+      "Odstaw do lodówki na noc (ok. 12-16 godzin).",
+      "Przełóż ciasto na obficie naoliwioną blachę, pozostaw do wyrośnięcia w temperaturze pokojowej na ok. 2 godziny.",
+      "Polej wierzch oliwą, zrób charakterystyczne wgłębienia palcami, posyp solą morską i rozmarynem.",
+      "Piecz w temperaturze 220°C przez ok. 20-25 minut na złocisty kolor.",
     ],
   },
 ];

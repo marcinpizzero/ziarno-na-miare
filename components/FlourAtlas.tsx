@@ -1,157 +1,171 @@
-// components/FlourAtlas.tsx
-'use client';
+"use client";
 
-import { useState, useMemo } from 'react';
-import { flours } from '@/lib/flourData';
-import { filterFloursByExclusions } from '@/lib/exclusionLogic';
-import { useAppStore } from '@/store/appStore';
-import { Flour } from '@/types';
+import { useState } from "react";
+import { FLOURS } from "@/lib/flourData";
 
 export default function FlourAtlas() {
-  const exclusions = useAppStore((s) => s.exclusions);
-  const setFlourBlend = useAppStore((s) => s.setFlourBlend);
-  const calculatorParams = useAppStore((s) => s.calculatorParams);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedGrain, setSelectedGrain] = useState<string>("Wszystkie");
 
-  const [filterGF, setFilterGF] = useState(false);
-  const [filterLowGI, setFilterLowGI] = useState(false);
-  const [filterBIO, setFilterBIO] = useState(false);
-  const [filterHighProtein, setFilterHighProtein] = useState(false);
-  const [searchTerm, setSearchTerm] = useState('');
+  // Pobranie unikalnych rodzajów zbóż
+  const grainTypes = ["Wszystkie", ...Array.from(new Set(FLOURS.map((f) => f.grainType)))];
 
-  const filteredFlours = useMemo(() => {
-    let result = filterFloursByExclusions(flours, exclusions);
-    if (filterGF) result = result.filter((f) => f.glutenFree);
-    if (filterLowGI) result = result.filter((f) => f.glycemicIndex === 'low');
-    if (filterBIO) result = result.filter((f) => f.organic);
-    if (filterHighProtein) result = result.filter((f) => f.protein >= 14);
-    if (searchTerm.trim()) {
-      const term = searchTerm.toLowerCase();
-      result = result.filter((f) => f.name.toLowerCase().includes(term) || f.type.toLowerCase().includes(term));
-    }
-    return result;
-  }, [exclusions, filterGF, filterLowGI, filterBIO, filterHighProtein, searchTerm]);
+  // Filtrowanie z normalizacją tekstu
+  const filteredFlours = FLOURS.filter((flour) => {
+    const q = searchQuery.trim().toLowerCase();
+    
+    const matchesSearch =
+      q === "" ||
+      flour.name.toLowerCase().includes(q) ||
+      flour.type.toLowerCase().includes(q) ||
+      flour.grainType.toLowerCase().includes(q) ||
+      flour.purpose.some((p) => p.toLowerCase().includes(q));
 
-  const addFlourToBlend = (flour: Flour) => {
-    const currentBlend = calculatorParams.flourBlend;
-    const existing = currentBlend.find((item) => item.flour.id === flour.id);
-    if (existing) {
-      const newBlend = currentBlend.map((item) =>
-        item.flour.id === flour.id ? { ...item, percentage: Math.min(100, item.percentage + 10) } : item
-      );
-      const total = newBlend.reduce((s, i) => s + i.percentage, 0);
-      if (total > 100) {
-        const excess = total - 100;
-        const target = newBlend.find((i) => i.flour.id === flour.id)!;
-        target.percentage -= excess;
-      }
-      setFlourBlend(newBlend);
-    } else {
-      const newBlend = [...currentBlend, { flour, percentage: 20 }];
-      const total = newBlend.reduce((s, i) => s + i.percentage, 0);
-      if (total > 100) {
-        const scale = 100 / total;
-        newBlend.forEach((i) => (i.percentage = Math.round(i.percentage * scale)));
-      }
-      setFlourBlend(newBlend);
-    }
-  };
+    const matchesGrain =
+      selectedGrain === "Wszystkie" || flour.grainType === selectedGrain;
 
-  const getGILabel = (gi: string): { text: string; color: string } => {
-    switch (gi) {
-      case 'low':
-        return { text: 'Niski IG', color: 'bg-green-100 text-green-700' };
-      case 'medium':
-        return { text: 'Średni IG', color: 'bg-amber-100 text-amber-700' };
-      case 'high':
-        return { text: 'Wysoki IG', color: 'bg-red-100 text-red-700' };
-      default:
-        return { text: '', color: '' };
-    }
-  };
+    return matchesSearch && matchesGrain;
+  });
 
   return (
-    <section className="bg-white rounded-2xl p-4 md:p-6 shadow-md border border-stone-200">
-      <h2 className="text-xl font-bold text-stone-800 mb-2 flex items-center gap-2">
-        <span>📚</span> Atlas Ziaren
-      </h2>
-      <p className="text-sm text-stone-500 mb-4">
-        Poznaj mąki, z których uszyjesz przepis na miarę. Kliknij, by dodać do swojego blendu.
-      </p>
-
-      <input
-        type="text"
-        placeholder="Szukaj ziarna..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="w-full px-4 py-2.5 rounded-xl border border-stone-300 bg-stone-50 text-stone-800 placeholder-stone-400 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent min-h-[44px] mb-3"
-      />
-
-      <div className="flex flex-wrap gap-2 mb-4">
-        {[
-          { label: 'Bezglutenowe', state: filterGF, set: setFilterGF, icon: '🌾' },
-          { label: 'Niski IG', state: filterLowGI, set: setFilterLowGI, icon: '📉' },
-          { label: 'BIO', state: filterBIO, set: setFilterBIO, icon: '🍃' },
-          { label: 'Białko ≥14g', state: filterHighProtein, set: setFilterHighProtein, icon: '💪' },
-        ].map(({ label, state, set, icon }) => (
-          <button
-            key={label}
-            onClick={() => set(!state)}
-            className={`px-3 py-1.5 rounded-full text-sm font-medium min-h-[44px] flex items-center gap-1 transition-colors ${
-              state ? 'bg-emerald-700 text-white shadow-md' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'
-            }`}
-          >
-            {icon} {label}
-          </button>
-        ))}
+    <section id="atlas-mak" className="pt-8 pb-12">
+      {/* Tytuł sekcji */}
+      <div className="mb-4">
+        <span className="inline-block text-[11px] font-bold uppercase tracking-wider text-[#6B705C] bg-[#E8DFD1] px-2.5 py-1 rounded-full mb-2">
+          Atlas Mąk & Surowców
+        </span>
+        <h2 className="text-2xl font-bold text-[#2C221E]">
+          Wybierz mąkę pod swój wypiek
+        </h2>
+        <p className="text-sm text-[#2C221E]/80 mt-1">
+          Poznaj parametry ziaren i mąk rzemieślniczych, które testujemy i rekomendujemy w domowej kuchni.
+        </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 max-h-[600px] overflow-y-auto">
-        {filteredFlours.map((flour) => {
-          const giInfo = getGILabel(flour.glycemicIndex);
-          const isInBlend = calculatorParams.flourBlend.some((item) => item.flour.id === flour.id);
+      {/* Wyszukiwarka */}
+      <div className="mb-3">
+        <input
+          type="text"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Szukaj: pizza, orkisz, typ 00..."
+          className="w-full px-4 py-3 rounded-xl bg-white border border-[#E8DFD1] text-[#2C221E] placeholder:text-[#2C221E]/40 text-sm focus:outline-none focus:border-[#C86443]"
+        />
+      </div>
+
+      {/* Poziome tagi do wyboru zbóż pod kciuk */}
+      <div className="flex gap-2 overflow-x-auto pb-4 mb-2">
+        {grainTypes.map((grain) => {
+          const isActive = selectedGrain === grain;
           return (
-            <div
-              key={flour.id}
-              className={`relative border-2 rounded-xl p-3 cursor-pointer transition-all hover:shadow-lg ${
-                isInBlend ? 'border-amber-400 bg-amber-50 shadow-md' : 'border-stone-200 bg-white hover:border-stone-300'
+            <button
+              key={grain}
+              type="button"
+              onClick={() => setSelectedGrain(grain)}
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+                isActive
+                  ? "bg-[#2C221E] text-[#F7F4EE]"
+                  : "bg-[#E8DFD1] text-[#2C221E] hover:bg-[#ded1c0]"
               }`}
-              onClick={() => addFlourToBlend(flour)}
             >
-              <div className="flex items-start justify-between mb-1">
-                <h3 className="font-semibold text-stone-800 text-sm leading-tight pr-6">{flour.name}</h3>
-                {isInBlend && <span className="absolute top-2 right-2 text-amber-500 text-lg">⭐</span>}
-              </div>
-              <div className="flex flex-wrap gap-1 mb-2">
-                <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${giInfo.color}`}>
-                  {giInfo.text}
-                </span>
-                {flour.glutenFree && (
-                  <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-700">GF</span>
-                )}
-                {flour.organic && (
-                  <span className="px-1.5 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-700">BIO</span>
-                )}
-              </div>
-              <div className="grid grid-cols-3 gap-1 text-xs text-stone-600 mb-1">
-                <div className="bg-stone-50 rounded p-1 text-center">
-                  <span className="block font-bold text-stone-800">{flour.protein}g</span>
-                  <span className="text-[10px]">białko</span>
-                </div>
-                <div className="bg-stone-50 rounded p-1 text-center">
-                  <span className="block font-bold text-stone-800">{flour.fiber}g</span>
-                  <span className="text-[10px]">błonnik</span>
-                </div>
-                <div className="bg-stone-50 rounded p-1 text-center">
-                  <span className="block font-bold text-stone-800">+{(flour.hydrationBoost * 100).toFixed(0)}%</span>
-                  <span className="text-[10px]">hydracja</span>
-                </div>
-              </div>
-              <p className="text-xs text-stone-500 line-clamp-2">{flour.notes}</p>
-            </div>
+              {grain}
+            </button>
           );
         })}
+      </div>
+
+      {/* Lista Kart Produktów */}
+      <div className="flex flex-col gap-4">
+        {filteredFlours.map((flour) => (
+          <article
+            key={flour.id}
+            className="p-5 rounded-2xl bg-[#E8DFD1]/50 border border-[#E8DFD1] space-y-4"
+          >
+            {/* Belka górna: Typ + Logo Partnera */}
+            <div className="flex items-center justify-between gap-2 border-b border-[#E8DFD1] pb-3">
+              <span className="text-xs font-bold uppercase tracking-wider bg-[#F7F4EE] text-[#C86443] px-2.5 py-1 rounded-md">
+                {flour.type} &bull; {flour.grainType}
+              </span>
+
+              {flour.partner && (
+                <div className="flex items-center bg-white px-2 py-1 rounded-md border border-[#E8DFD1] h-8">
+                  {flour.partner.logoUrl ? (
+                    <img
+                      src={flour.partner.logoUrl}
+                      alt={flour.partner.name}
+                      className="h-5 w-auto object-contain"
+                    />
+                  ) : (
+                    <span className="text-xs font-bold text-[#6B705C]">
+                      {flour.partner.name}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* Nazwa i opis */}
+            <div>
+              <h3 className="text-lg font-bold text-[#2C221E]">
+                {flour.name}
+              </h3>
+              <p className="text-xs text-[#2C221E]/80 mt-1 leading-relaxed">
+                {flour.shortDescription}
+              </p>
+            </div>
+
+            {/* Zastosowania */}
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-[#6B705C] block mb-1">
+                Polecana do:
+              </span>
+              <div className="flex flex-wrap gap-1.5">
+                {flour.purpose.map((item) => (
+                  <span
+                    key={item}
+                    className="text-xs bg-[#F7F4EE] text-[#2C221E] px-2.5 py-0.5 rounded-full font-medium"
+                  >
+                    {item}
+                  </span>
+                ))}
+              </div>
+            </div>
+
+            {/* Wartości odżywcze w pigułce */}
+            <div className="grid grid-cols-3 gap-2 bg-[#F7F4EE] p-3 rounded-xl text-center">
+              <div>
+                <span className="block text-[10px] text-[#2C221E]/60 uppercase">Białko</span>
+                <span className="text-xs font-bold text-[#2C221E]">{flour.nutrition.protein} g</span>
+              </div>
+              <div>
+                <span className="block text-[10px] text-[#2C221E]/60 uppercase">Energia</span>
+                <span className="text-xs font-bold text-[#2C221E]">{flour.nutrition.energyKcal} kcal</span>
+              </div>
+              <div>
+                <span className="block text-[10px] text-[#2C221E]/60 uppercase">Węglowodany</span>
+                <span className="text-xs font-bold text-[#2C221E]">{flour.nutrition.carbs} g</span>
+              </div>
+            </div>
+
+            {/* Link bezpośredni do sklepu partnera */}
+            {flour.partner && (
+              <a
+                href={flour.partner.shopUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full flex items-center justify-center gap-2 py-3 px-4 rounded-xl bg-[#C86443] hover:bg-[#b55839] text-[#F7F4EE] font-bold text-sm transition-colors active:scale-[0.99]"
+              >
+                <span>Sprawdź w sklepie {flour.partner.name}</span>
+                <span>&rarr;</span>
+              </a>
+            )}
+          </article>
+        ))}
+
         {filteredFlours.length === 0 && (
-          <p className="text-center text-stone-500 py-8">Brak ziaren spełniających kryteria.</p>
+          <div className="text-center py-8 text-sm text-[#2C221E]/70 bg-[#E8DFD1]/30 rounded-xl p-4">
+            Brak wyników dla zapytania: <strong>&bdquo;{searchQuery}&rdquo;</strong>.
+          </div>
         )}
       </div>
     </section>

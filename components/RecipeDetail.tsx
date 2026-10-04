@@ -2,7 +2,7 @@
 'use client';
 
 import { RecipeData } from '@/lib/exclusionRecipes';
-import { flours } from '@/lib/flourData';
+import { FLOURS } from '@/lib/flourData';
 import Link from 'next/link';
 
 interface RecipeDetailProps {
@@ -22,7 +22,7 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
   };
 
   const getFlourName = (flourId: string): string => {
-    const flour = flours.find((f) => f.id === flourId);
+    const flour = FLOURS.find((f) => f.id === flourId);
     return flour ? flour.name : '';
   };
 
@@ -207,7 +207,7 @@ export default function RecipeDetail({ recipe }: RecipeDetailProps) {
             .flatMap((s) => s.items)
             .filter((item) => item.flourId)
             .map((item, i) => {
-              const flour = flours.find((f) => f.id === item.flourId);
+              const flour = FLOURS.find((f) => f.id === item.flourId);
               if (!flour) return null;
               return (
                 <div

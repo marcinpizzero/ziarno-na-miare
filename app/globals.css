@@ -1,1 +1,24 @@
 @import "tailwindcss";
+
+@theme {
+  /* Kolory marki 42NAP / Ziarno na miarę */
+  --color-grain-bg: #F7F4EE;
+  --color-grain-card: #E8DFD1;
+  --color-grain-text: #2C221E;
+  --color-grain-accent: #C86443;
+  --color-grain-olive: #6B705C;
+
+  /* Czcionki */
+  --font-spartan: var(--font-spartan), sans-serif;
+  --font-inter: var(--font-inter), sans-serif;
+}
+
+body {
+  background-color: var(--color-grain-bg);
+  color: var(--color-grain-text);
+  font-family: var(--font-inter);
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-spartan);
+}
