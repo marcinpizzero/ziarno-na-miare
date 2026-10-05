@@ -44,12 +44,12 @@ export default function RecipeList() {
         </p>
       </div>
 
-      {/* Filtry wykluczeń pod kciuk */}
-      <div className="flex gap-2 overflow-x-auto pb-3 mb-4">
+      {/* Filtry wykluczeń - 2 wersy wyśrodkowane na ekranie (3 na górze, 2 na dole) */}
+      <div className="flex flex-wrap justify-center gap-2 mb-5">
         <button
           type="button"
           onClick={() => setActiveFilter("all")}
-          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+          className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
             activeFilter === "all"
               ? "bg-[#2C221E] text-[#F7F4EE]"
               : "bg-[#E8DFD1] text-[#2C221E] hover:bg-[#ded1c0]"
@@ -64,7 +64,7 @@ export default function RecipeList() {
               key={tag}
               type="button"
               onClick={() => setActiveFilter(tag)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold transition-colors ${
                 isActive
                   ? "bg-[#C86443] text-[#F7F4EE]"
                   : "bg-[#E8DFD1] text-[#2C221E] hover:bg-[#ded1c0]"

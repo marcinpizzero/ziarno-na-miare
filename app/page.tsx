@@ -6,11 +6,8 @@ import DoughCalculator from "@/components/DoughCalculator";
 export default function HomePage() {
   return (
     <div className="flex flex-col gap-6 py-2">
-      {/* Nagłówek marki 42NAP / Ziarno na miarę */}
+      {/* Nagłówek marki Ziarno na miarę */}
       <header className="text-center space-y-2 pt-2 pb-4 border-b border-[#E8DFD1]">
-        <span className="text-xs uppercase tracking-widest font-semibold text-[#6B705C]">
-          Projekt 42NAP
-        </span>
         <h1 className="text-3xl font-bold tracking-tight text-[#2C221E]">
           Ziarno na miarę
         </h1>
