@@ -5,10 +5,10 @@ import { RECIPES, DIETARY_TAG_LABELS, DietaryTag } from "@/lib/recipeData";
 import { FLOURS } from "@/lib/flourData";
 
 export default function HomePage() {
-  // Stan zakładek ścieżki
+  // Stan nawigacji / widoków
   const [activeTab, setActiveTab] = useState<"recipes" | "flours" | "calculator">("recipes");
 
-  // Stan filtrów wykluczeń w przepisach
+  // Stan filtrów przepisów
   const [activeTag, setActiveTag] = useState<DietaryTag | "all">("all");
   const [recipePortions, setRecipePortions] = useState<Record<string, number>>(() => {
     const initial: Record<string, number> = {};
@@ -18,7 +18,7 @@ export default function HomePage() {
     return initial;
   });
 
-  // Stan wyszukiwarki i filtra zbóż w Atlasie Mąk
+  // Stan Atlasu Mąk
   const [searchFlour, setSearchFlour] = useState("");
   const [selectedGrain, setSelectedGrain] = useState<string>("all");
 
@@ -26,7 +26,7 @@ export default function HomePage() {
   const [calcStyle, setCalcStyle] = useState<"pizza" | "focaccia">("pizza");
   const [calcPortions, setCalcPortions] = useState<number>(2);
 
-  // Funkcja zmiany porcji w pojedynczym przepisie
+  // Zmiana porcji w przepisach
   const handlePortionChange = (recipeId: string, delta: number) => {
     setRecipePortions((prev) => {
       const current = prev[recipeId] || 1;
@@ -35,16 +35,16 @@ export default function HomePage() {
     });
   };
 
-  // Filtrowanie listy przepisów pod wykluczenia
+  // Filtrowanie przepisów
   const filteredRecipes = RECIPES.filter((recipe) => {
     if (activeTag === "all") return true;
     return (recipe.tags as readonly string[]).includes(activeTag);
   });
 
-  // Lista unikalnych zbóż z Atlasu Mąk
+  // Unikalne zboża do filtrów mąk
   const grainTypes = ["all", ...Array.from(new Set(FLOURS.map((f) => f.grainType)))];
 
-  // Filtrowanie mąk NIRO BIO
+  // Filtrowanie mąk
   const filteredFlours = FLOURS.filter((flour) => {
     const query = searchFlour.toLowerCase();
     const matchesSearch =
@@ -55,14 +55,14 @@ export default function HomePage() {
     return matchesSearch && matchesGrain;
   });
 
-  // Baza kalkulatora domowego na 1 jednostkę
+  // Baza kalkulatora domowego
   const calcBase =
     calcStyle === "pizza"
       ? { flour: 160, water: 104, salt: 4, yeast: 0.5, oil: 4, unitName: "pizze (kulki 260g)" }
       : { flour: 200, water: 150, salt: 5, yeast: 1.5, oil: 10, unitName: "porcje focacci" };
 
   return (
-    <main className="min-h-screen text-[#2C221E] px-4 py-6 max-w-lg mx-auto pb-24">
+    <main className="min-h-screen bg-[#F7F4EE] text-[#2C221E] px-4 py-6 max-w-lg mx-auto pb-24">
       {/* 1. NAGŁÓWEK MARKI */}
       <header className="text-center space-y-2 pt-2 pb-5 border-b border-[#E8DFD1]">
         <h1 className="text-3xl font-extrabold tracking-tight text-[#2C221E]">
@@ -73,7 +73,7 @@ export default function HomePage() {
         </p>
       </header>
 
-      {/* 2. KAFLOWE MENU WYBORU ŚCIEŻKI (1 kolumna / kafle pod kciuk) */}
+      {/* 2. KAFLOWE MENU WYBORU ŚCIEŻKI */}
       <nav className="grid grid-cols-3 gap-2 my-5">
         <button
           type="button"
@@ -123,7 +123,7 @@ export default function HomePage() {
             <p className="text-xs text-[#2C221E]/70">Wybierz wykluczenie i dostosuj liczbę porcji pod kciukiem.</p>
           </div>
 
-          {/* Filtry wykluczeń - 2 wersy wyśrodkowane na ekranie smartfona */}
+          {/* Filtry wykluczeń - 2 wersy wyśrodkowane */}
           <div className="flex flex-wrap justify-center gap-1.5 py-1">
             <button
               type="button"
@@ -165,7 +165,7 @@ export default function HomePage() {
               return (
                 <article
                   key={recipe.id}
-                  className="bg-white/90 rounded-2xl p-4 shadow-sm border border-[#E8DFD1] space-y-3"
+                  className="bg-white rounded-2xl p-4 shadow-sm border border-[#E8DFD1] space-y-3"
                 >
                   <div>
                     <div className="flex flex-wrap gap-1 mb-1.5">
@@ -213,7 +213,7 @@ export default function HomePage() {
                     </div>
                   </div>
 
-                  {/* Składniki przeliczane w czasie rzeczywistym */}
+                  {/* Składniki */}
                   <div className="space-y-1.5">
                     <h4 className="text-xs font-bold uppercase tracking-wider text-[#2C221E]/70">
                       Składniki na {portions} {recipe.portionUnitName}:
@@ -233,7 +233,7 @@ export default function HomePage() {
                     </ul>
                   </div>
 
-                  {/* Rekomendacja mąki NIRO BIO */}
+                  {/* Rekomendacja mąki */}
                   {recommendedFlour && (
                     <div className="p-2.5 bg-[#E8DFD1]/40 rounded-xl flex items-center justify-between gap-2 border border-[#E8DFD1]">
                       <div className="text-[11px]">
@@ -288,7 +288,7 @@ export default function HomePage() {
             className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E8DFD1] text-xs placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#C86443]"
           />
 
-          {/* Kafelki wyboru zbóż */}
+          {/* Kafelki zbóż */}
           <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
             {grainTypes.map((grain) => (
               <button
@@ -306,12 +306,12 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Karty produktów mącznych */}
+          {/* Karty mąk z bezpiecznym logo NIRO BIO */}
           <div className="space-y-3">
             {filteredFlours.map((flour) => (
               <article
                 key={flour.id}
-                className="bg-white/95 rounded-2xl p-4 shadow-sm border border-[#E8DFD1] space-y-2.5"
+                className="bg-white rounded-2xl p-4 shadow-sm border border-[#E8DFD1] space-y-2.5"
               >
                 <div className="flex justify-between items-start gap-2">
                   <div>
@@ -321,9 +321,20 @@ export default function HomePage() {
                     <h3 className="text-base font-bold text-[#2C221E] mt-1">{flour.name}</h3>
                   </div>
 
-                  {/* Logo partnera NIRO BIO z zabezpieczeniem wymiarów */}
-                  <div className="h-6 w-16 relative flex items-center justify-end flex-shrink-0">
-                    <span className="text-[10px] font-extrabold tracking-wider text-[#6B705C] border border-[#6B705C] px-1 rounded">
+                  {/* Bezpieczne logo NIRO BIO o stałej wysokości */}
+                  <div className="flex-shrink-0 flex items-center justify-end">
+                    <img
+                      src="/partners/niro-bio.png"
+                      alt="NIRO BIO"
+                      className="h-7 w-auto max-h-7 object-contain"
+                      onError={(e) => {
+                        // Zapasowy badge jeśli plik png nie został jeszcze wgrany
+                        e.currentTarget.style.display = "none";
+                        const fallback = e.currentTarget.parentElement?.querySelector(".fallback-badge");
+                        if (fallback) fallback.classList.remove("hidden");
+                      }}
+                    />
+                    <span className="fallback-badge hidden text-[10px] font-extrabold tracking-wider text-[#6B705C] border border-[#6B705C] px-1.5 py-0.5 rounded">
                       NIRO BIO
                     </span>
                   </div>
@@ -342,7 +353,7 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                {/* Tabela wartości odżywczych */}
+                {/* Tabela odżywcza */}
                 <div className="grid grid-cols-4 gap-1 p-2 bg-[#F7F4EE] rounded-xl text-center text-[10px] border border-[#E8DFD1]/60">
                   <div>
                     <span className="text-[#2C221E]/60 block">Białko</span>
@@ -382,7 +393,7 @@ export default function HomePage() {
 
       {/* 5. MODUŁ: SZYBKI KALKULATOR DOMOWY */}
       {activeTab === "calculator" && (
-        <section className="bg-white/95 rounded-2xl p-5 shadow-sm border border-[#E8DFD1] space-y-4">
+        <section className="bg-white rounded-2xl p-5 shadow-sm border border-[#E8DFD1] space-y-4">
           <div className="text-center space-y-1">
             <h2 className="text-xl font-bold">Kalkulator Ciasta</h2>
             <p className="text-xs text-[#2C221E]/70">
@@ -483,7 +494,7 @@ export default function HomePage() {
       <footer className="text-center text-[11px] text-[#2C221E]/60 pt-8 space-y-1 border-t border-[#E8DFD1] mt-8">
         <p className="font-semibold text-[#2C221E]/80">Ziarno na miarę © 2026</p>
         <p>Ekosystem wiedzy o mąkach, fermentacji i domowych wypiekach[cite: 21].</p>
-        <p>Partner technologiczny mąk: NIRO BIO[cite: 22]</p>
+        <p>Partner technologiczny mąk: NIRO BIO</p>
       </footer>
     </main>
   );
