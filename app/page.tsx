@@ -5,10 +5,9 @@ import { RECIPES, DIETARY_TAG_LABELS, DietaryTag } from "@/lib/recipeData";
 import { FLOURS } from "@/lib/flourData";
 
 export default function HomePage() {
-  // Stan nawigacji / widoków
   const [activeTab, setActiveTab] = useState<"recipes" | "flours" | "calculator">("recipes");
 
-  // Stan filtrów przepisów
+  // Stan filtrów wykluczeń i porcji
   const [activeTag, setActiveTag] = useState<DietaryTag | "all">("all");
   const [recipePortions, setRecipePortions] = useState<Record<string, number>>(() => {
     const initial: Record<string, number> = {};
@@ -22,11 +21,10 @@ export default function HomePage() {
   const [searchFlour, setSearchFlour] = useState("");
   const [selectedGrain, setSelectedGrain] = useState<string>("all");
 
-  // Stan Szybkiego Kalkulatora Domowego
+  // Stan Kalkulatora
   const [calcStyle, setCalcStyle] = useState<"pizza" | "focaccia">("pizza");
   const [calcPortions, setCalcPortions] = useState<number>(2);
 
-  // Zmiana porcji w przepisach
   const handlePortionChange = (recipeId: string, delta: number) => {
     setRecipePortions((prev) => {
       const current = prev[recipeId] || 1;
@@ -35,16 +33,13 @@ export default function HomePage() {
     });
   };
 
-  // Filtrowanie przepisów
   const filteredRecipes = RECIPES.filter((recipe) => {
     if (activeTag === "all") return true;
     return (recipe.tags as readonly string[]).includes(activeTag);
   });
 
-  // Unikalne zboża do filtrów mąk
   const grainTypes = ["all", ...Array.from(new Set(FLOURS.map((f) => f.grainType)))];
 
-  // Filtrowanie mąk
   const filteredFlours = FLOURS.filter((flour) => {
     const query = searchFlour.toLowerCase();
     const matchesSearch =
@@ -55,11 +50,14 @@ export default function HomePage() {
     return matchesSearch && matchesGrain;
   });
 
-  // Baza kalkulatora domowego
-  const calcBase =
-    calcStyle === "pizza"
-      ? { flour: 160, water: 104, salt: 4, yeast: 0.5, oil: 4, unitName: "pizze (kulki 260g)" }
-      : { flour: 200, water: 150, salt: 5, yeast: 1.5, oil: 10, unitName: "porcje focacci" };
+  // Wartości bazowe kalkulatora
+  const isPizza = calcStyle === "pizza";
+  const baseFlour = isPizza ? 160 : 200;
+  const baseWater = isPizza ? 104 : 150;
+  const baseSalt = isPizza ? 4 : 5;
+  const baseYeast = isPizza ? 0.5 : 1.5;
+  const baseOil = isPizza ? 4 : 10;
+  const unitLabel = isPizza ? "pizze (kulki 260g)" : "porcje focacci";
 
   return (
     <main className="min-h-screen bg-[#F7F4EE] text-[#2C221E] px-4 py-6 max-w-lg mx-auto pb-24">
@@ -123,7 +121,7 @@ export default function HomePage() {
             <p className="text-xs text-[#2C221E]/70">Wybierz wykluczenie i dostosuj liczbę porcji pod kciukiem.</p>
           </div>
 
-          {/* Filtry wykluczeń - 2 wersy wyśrodkowane */}
+          {/* Filtry wykluczeń */}
           <div className="flex flex-wrap justify-center gap-1.5 py-1">
             <button
               type="button"
@@ -156,7 +154,7 @@ export default function HomePage() {
             })}
           </div>
 
-          {/* Lista kart przepisów */}
+          {/* Lista przepisów */}
           <div className="space-y-4">
             {filteredRecipes.map((recipe) => {
               const portions = recipePortions[recipe.id] || recipe.defaultPortions;
@@ -182,9 +180,10 @@ export default function HomePage() {
                       {recipe.title}
                     </h3>
                     <p className="text-xs text-[#2C221E]/80 mt-1">{recipe.shortDescription}</p>
-                    <div className="flex items-center gap-3 text-[11px] text-[#2C221E]/60 mt-1.5 font-medium">
+
+                    {/* Pozostawiono wyłącznie czas fermentacji */}
+                    <div className="flex items-center text-[11px] text-[#2C221E]/70 mt-1.5 font-medium">
                       <span>⏱️ {recipe.timeMinutes}</span>
-                      <span>📂 {recipe.category}</span>
                     </div>
                   </div>
 
@@ -279,7 +278,6 @@ export default function HomePage() {
             </p>
           </div>
 
-          {/* Wyszukiwarka */}
           <input
             type="text"
             value={searchFlour}
@@ -288,17 +286,17 @@ export default function HomePage() {
             className="w-full px-4 py-2.5 rounded-xl bg-white border border-[#E8DFD1] text-xs placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#C86443]"
           />
 
-          {/* Kafelki zbóż */}
-          <div className="flex gap-1.5 overflow-x-auto pb-1 text-xs">
+          {/* Kafelki zbóż - zawijanie w wersy */}
+          <div className="flex flex-wrap justify-center gap-1.5 py-1">
             {grainTypes.map((grain) => (
               <button
                 key={grain}
                 type="button"
                 onClick={() => setSelectedGrain(grain)}
-                className={`px-3 py-1.5 rounded-full whitespace-nowrap text-xs font-medium transition-colors ${
+                className={`px-3 py-1.5 rounded-full text-xs font-medium transition-colors ${
                   selectedGrain === grain
                     ? "bg-[#2C221E] text-[#F7F4EE]"
-                    : "bg-[#E8DFD1] text-[#2C221E]"
+                    : "bg-[#E8DFD1] text-[#2C221E] hover:bg-[#ded1c0]"
                 }`}
               >
                 {grain === "all" ? "Wszystkie zboża" : grain}
@@ -306,7 +304,7 @@ export default function HomePage() {
             ))}
           </div>
 
-          {/* Karty mąk z bezpiecznym logo NIRO BIO */}
+          {/* Karty mąk */}
           <div className="space-y-3">
             {filteredFlours.map((flour) => (
               <article
@@ -321,14 +319,12 @@ export default function HomePage() {
                     <h3 className="text-base font-bold text-[#2C221E] mt-1">{flour.name}</h3>
                   </div>
 
-                  {/* Bezpieczne logo NIRO BIO o stałej wysokości */}
                   <div className="flex-shrink-0 flex items-center justify-end">
                     <img
                       src="/partners/niro-bio.png"
                       alt="NIRO BIO"
                       className="h-7 w-auto max-h-7 object-contain"
                       onError={(e) => {
-                        // Zapasowy badge jeśli plik png nie został jeszcze wgrany
                         e.currentTarget.style.display = "none";
                         const fallback = e.currentTarget.parentElement?.querySelector(".fallback-badge");
                         if (fallback) fallback.classList.remove("hidden");
@@ -353,7 +349,6 @@ export default function HomePage() {
                   ))}
                 </div>
 
-                {/* Tabela odżywcza */}
                 <div className="grid grid-cols-4 gap-1 p-2 bg-[#F7F4EE] rounded-xl text-center text-[10px] border border-[#E8DFD1]/60">
                   <div>
                     <span className="text-[#2C221E]/60 block">Białko</span>
@@ -429,13 +424,13 @@ export default function HomePage() {
           <div className="flex items-center justify-between p-3 bg-[#F7F4EE] rounded-xl border border-[#E8DFD1]">
             <div>
               <span className="text-xs font-bold block">Ilość sztuk:</span>
-              <span className="text-[11px] text-[#2C221E]/60">{calcBase.unitName}</span>
+              <span className="text-[11px] text-[#2C221E]/60">{unitLabel}</span>
             </div>
             <div className="flex items-center gap-3">
               <button
                 type="button"
                 onClick={() => setCalcPortions((prev) => Math.max(1, prev - 1))}
-                className="w-9 h-9 rounded-full bg-[#E8DFD1] text-lg font-bold flex items-center justify-center active:scale-95"
+                className="w-9 h-9 rounded-full bg-[#E8DFD1] text-lg font-bold flex items-center justify-center active:scale-95 text-[#2C221E]"
               >
                 -
               </button>
@@ -457,32 +452,30 @@ export default function HomePage() {
             <div className="space-y-1.5 text-xs">
               <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
                 <span>Mąka (np. Bio Orkisz 00)</span>
-                <span className="font-bold text-[#C86443]">{calcBase.flour * calcPortions} g</span>
+                <span className="font-bold text-[#C86443]">{baseFlour * calcPortions} g</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
                 <span>Woda (chłodna)</span>
-                <span className="font-bold text-[#C86443]">{calcBase.water * calcPortions} ml</span>
+                <span className="font-bold text-[#C86443]">{baseWater * calcPortions} ml</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
                 <span>Sól drobna</span>
-                <span className="font-bold text-[#C86443]">{calcBase.salt * calcPortions} g</span>
+                <span className="font-bold text-[#C86443]">{baseSalt * calcPortions} g</span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
                 <span>Świeże drożdże</span>
                 <span className="font-bold text-[#C86443]">
-                  {Math.round(calcBase.yeast * calcPortions * 10) / 10} g
+                  {Math.round(baseYeast * calcPortions * 10) / 10} g
                 </span>
               </div>
               <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
                 <span>Oliwa z oliwek extra virgin</span>
-                <span className="font-bold text-[#C86443]">{calcBase.oil * calcPortions} g</span>
+                <span className="font-bold text-[#C86443]">{baseOil * calcPortions} g</span>
               </div>
               <div className="flex justify-between pt-2 text-sm font-extrabold text-[#2C221E]">
                 <span>Łączna masa ciasta:</span>
                 <span>
-                  {(calcBase.flour + calcBase.water + calcBase.salt + calcBase.yeast + calcBase.oil) *
-                    calcPortions}{" "}
-                  g
+                  {(baseFlour + baseWater + baseSalt + baseYeast + baseOil) * calcPortions} g
                 </span>
               </div>
             </div>
@@ -493,8 +486,8 @@ export default function HomePage() {
       {/* 6. STOPKA PLATFORMY */}
       <footer className="text-center text-[11px] text-[#2C221E]/60 pt-8 space-y-1 border-t border-[#E8DFD1] mt-8">
         <p className="font-semibold text-[#2C221E]/80">Ziarno na miarę © 2026</p>
-        <p>Ekosystem wiedzy o mąkach, fermentacji i domowych wypiekach[cite: 21].</p>
-        <p>Partner technologiczny mąk: NIRO BIO</p>
+        <p>Ekosystem wiedzy o mąkach, fermentacji i domowych wypiekach[cite: 23].</p>
+        <p>Partner technologiczny mąk: NIRO BIO[cite: 24]</p>
       </footer>
     </main>
   );
