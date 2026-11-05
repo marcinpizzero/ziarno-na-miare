@@ -386,16 +386,17 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* 5. MODUŁ: SZYBKI KALKULATOR DOMOWY */}
+      {/* 5. MODUŁ: PARAMETRYCZNY KALKULATOR CIASTA */}
       {activeTab === "calculator" && (
         <section className="bg-white rounded-2xl p-5 shadow-sm border border-[#E8DFD1] space-y-4">
           <div className="text-center space-y-1">
             <h2 className="text-xl font-bold">Kalkulator Ciasta</h2>
             <p className="text-xs text-[#2C221E]/70">
-              Przelicznik składników na wagę do pizzy i focacci.
+              Obliczenia oparte na procentach piekarskich i masie kulki.
             </p>
           </div>
 
+          {/* Przełącznik stylu wypieku */}
           <div className="grid grid-cols-2 gap-2 p-1 bg-[#F7F4EE] rounded-xl border border-[#E8DFD1]">
             <button
               type="button"
@@ -421,10 +422,13 @@ export default function HomePage() {
             </button>
           </div>
 
+          {/* Liczba sztuk / kulek */}
           <div className="flex items-center justify-between p-3 bg-[#F7F4EE] rounded-xl border border-[#E8DFD1]">
             <div>
-              <span className="text-xs font-bold block">Ilość sztuk:</span>
-              <span className="text-[11px] text-[#2C221E]/60">{unitLabel}</span>
+              <span className="text-xs font-bold block">Ilość porcji:</span>
+              <span className="text-[11px] text-[#2C221E]/60">
+                {calcStyle === "pizza" ? "kulki po ok. 260g" : "porcje na blachę"}
+              </span>
             </div>
             <div className="flex items-center gap-3">
               <button
@@ -445,39 +449,58 @@ export default function HomePage() {
             </div>
           </div>
 
+          {/* Podsumowanie gramatur wyliczone z parametrów */}
           <div className="space-y-2 pt-1">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-[#2C221E]/70">
-              Gramatury składników:
-            </h3>
+            <div className="flex justify-between items-center text-xs font-bold uppercase tracking-wider text-[#2C221E]/70">
+              <span>Składnik</span>
+              <span>Waga (% mąki)</span>
+            </div>
+
             <div className="space-y-1.5 text-xs">
-              <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
-                <span>Mąka (np. Bio Orkisz 00)</span>
-                <span className="font-bold text-[#C86443]">{baseFlour * calcPortions} g</span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
-                <span>Woda (chłodna)</span>
-                <span className="font-bold text-[#C86443]">{baseWater * calcPortions} ml</span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
-                <span>Sól drobna</span>
-                <span className="font-bold text-[#C86443]">{baseSalt * calcPortions} g</span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
-                <span>Świeże drożdże</span>
-                <span className="font-bold text-[#C86443]">
-                  {Math.round(baseYeast * calcPortions * 10) / 10} g
-                </span>
-              </div>
-              <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
-                <span>Oliwa z oliwek extra virgin</span>
-                <span className="font-bold text-[#C86443]">{baseOil * calcPortions} g</span>
-              </div>
-              <div className="flex justify-between pt-2 text-sm font-extrabold text-[#2C221E]">
-                <span>Łączna masa ciasta:</span>
-                <span>
-                  {(baseFlour + baseWater + baseSalt + baseYeast + baseOil) * calcPortions} g
-                </span>
-              </div>
+              {(() => {
+                // Parametry piekarskie (Pizza vs Focaccia)
+                const flourPerUnit = calcStyle === "pizza" ? 160 : 200;
+                const hydrationPct = calcStyle === "pizza" ? 65 : 75;
+                const saltPct = 2.5;
+                const yeastPct = calcStyle === "pizza" ? 0.31 : 0.75;
+                const oilPct = calcStyle === "pizza" ? 2.5 : 5.0;
+
+                const totalFlour = flourPerUnit * calcPortions;
+                const totalWater = Math.round((totalFlour * hydrationPct) / 100);
+                const totalSalt = Math.round(((totalFlour * saltPct) / 100) * 10) / 10;
+                const totalYeast = Math.round(((totalFlour * yeastPct) / 100) * 10) / 10;
+                const totalOil = Math.round(((totalFlour * oilPct) / 100) * 10) / 10;
+                const totalDough = Math.round(totalFlour + totalWater + totalSalt + totalYeast + totalOil);
+
+                return (
+                  <>
+                    <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
+                      <span>Mąka (np. Bio Orkisz 00)</span>
+                      <span className="font-bold text-[#C86443]">{totalFlour} g (100%)</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
+                      <span>Woda (chłodna)</span>
+                      <span className="font-bold text-[#C86443]">{totalWater} ml ({hydrationPct}%)</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
+                      <span>Sól morska drobna</span>
+                      <span className="font-bold text-[#C86443]">{totalSalt} g ({saltPct}%)</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
+                      <span>Świeże drożdże (chłodna fermentacja)</span>
+                      <span className="font-bold text-[#C86443]">{totalYeast} g ({yeastPct}%)</span>
+                    </div>
+                    <div className="flex justify-between py-1.5 border-b border-[#E8DFD1]">
+                      <span>Oliwa z oliwek extra virgin</span>
+                      <span className="font-bold text-[#C86443]">{totalOil} g ({oilPct}%)</span>
+                    </div>
+                    <div className="flex justify-between pt-2 text-sm font-extrabold text-[#2C221E]">
+                      <span>Łączna masa ciasta:</span>
+                      <span>{totalDough} g (ok. {Math.round(totalDough / calcPortions)}g / szt.)</span>
+                    </div>
+                  </>
+                );
+              })()}
             </div>
           </div>
         </section>
